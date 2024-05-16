@@ -1,0 +1,53 @@
+{
+  "name": "chai-equal-ignore-undefined-properties",
+  "version": "1.0.0",
+  "description": "Ignore keys which have undefined values to compare from a deep equal operation with chai expect",
+  "main": " chai-equal-ignore-undefined-properties.js",
+  "types": "index.d.ts",
+  "author": "Daniel Kurtjak <daniel.kurtjak@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties",
+  "files": [
+    " chai-equal-ignore-undefined-properties.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "test": "mocha --reporter spec --recursive --colors *.test.js",
+    "code:fix": "prettier --write --list-different '**/*.{ts,js,json}'",
+    "code:check": "prettier  --list-different '**/*.{ts,js,json}'",
+    "type:check": "tsd"
+  },
+  "keywords": [
+    "chai",
+    "assert",
+    "expect",
+    "ignore",
+    "undefined",
+    "properties",
+    "chai-plugin",
+    "chai-equal-ignore-undefined-properties"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties"
+  },
+  "bugs": {
+    "url": "https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/issues"
+  },
+  "mocha": {
+    "timeout": 20000
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "prettier": "^3.2.5",
+    "tsd": "^0.25.0"
+  },
+  "dependencies": {
+    "fclone": "^1.0.11"
+  },
+  "peerDependencies": {
+    "chai": ">= 4.0.0 < 5"
+  }
+}
