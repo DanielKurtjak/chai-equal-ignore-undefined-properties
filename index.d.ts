@@ -2,6 +2,6 @@
 declare module "chai-equal-ignore-undefined-properties" {
   export default function chaiEqualIgnoreUndefinedProps(
     chai: Chai.ChaiStatic,
-    utils: Chai.ChaiUtils
+    utils: Chai.ChaiUtils,
   ): void;
 }

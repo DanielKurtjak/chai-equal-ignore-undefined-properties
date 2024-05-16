@@ -14,7 +14,7 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
       if (Array.isArray(object)) {
         return deepClone
           ? object.map((item) =>
-              cloneIgnoringUndefinedPropertiesInner(item, true)
+              cloneIgnoringUndefinedPropertiesInner(item, true),
             )
           : object;
       }
