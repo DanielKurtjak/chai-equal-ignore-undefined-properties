@@ -2,7 +2,7 @@ import * as chai from "chai";
 import { expectType } from "tsd";
 
 import ".";
-import * as chaiEqualIgnoreUndefinedProperties from "./chai-equal-ignore-undefined-props";
+import * as chaiEqualIgnoreUndefinedProperties from "./chai-equal-ignore-undefined-properties";
 
 // @ts-ignore
 chai.use(chaiEqualIgnoreUndefinedProperties);

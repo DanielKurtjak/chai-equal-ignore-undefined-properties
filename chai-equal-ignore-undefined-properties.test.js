@@ -2,7 +2,7 @@
 
 const { use, expect } = require("chai");
 
-const chaiEqualIgnoreUndefinedProps = require("./chai-equal-ignore-undefined-props");
+const chaiEqualIgnoreUndefinedProps = require("./chai-equal-ignore-undefined-properties");
 
 use(chaiEqualIgnoreUndefinedProps);
 
