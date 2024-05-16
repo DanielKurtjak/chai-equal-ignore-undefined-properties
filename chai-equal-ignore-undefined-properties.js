@@ -1,6 +1,6 @@
 const clone = require("fclone");
 
-function chaiIgnoreUndefinedProps(chai, utils) {
+function chaiEqualIgnoreUndefinedProps(chai, utils) {
   const { Assertion } = chai;
 
   function cloneIgnoringUndefinedProperties(val, deepClone) {
@@ -14,7 +14,7 @@ function chaiIgnoreUndefinedProps(chai, utils) {
       if (Array.isArray(object)) {
         return deepClone
           ? object.map((item) =>
-              cloneIgnoringUndefinedPropertiesInner(item, true),
+              cloneIgnoringUndefinedPropertiesInner(item, true)
             )
           : object;
       }
@@ -57,5 +57,5 @@ function chaiIgnoreUndefinedProps(chai, utils) {
   Assertion.overwriteMethod("equals", assertEqual);
 }
 
-module.exports = chaiIgnoreUndefinedProps;
-module.exports.default = chaiIgnoreUndefinedProps;
+module.exports = chaiEqualIgnoreUndefinedProps;
+module.exports.default = chaiEqualIgnoreUndefinedProps;
