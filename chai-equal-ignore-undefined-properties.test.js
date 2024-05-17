@@ -1,12 +1,43 @@
 /* eslint-env mocha */
 
-const { use, expect } = require("chai");
+const { use, assert, expect } = require("chai");
 
-const chaiEqualIgnoreUndefinedProps = require("./chai-equal-ignore-undefined-properties");
+const {
+  default: chaiEqualIgnoreUndefinedProps,
+  deepClone,
+} = require("./chai-equal-ignore-undefined-properties");
 
 use(chaiEqualIgnoreUndefinedProps);
 
 describe("chai-equal-ignore-undefined-props", () => {
+  describe("deepClone", () => {
+    it("should clone an object", () => {
+      const obj = {
+        a: 1,
+        b: new Date(),
+        c: /abc/,
+        d: new Map([["key1", "value1"]]),
+        e: new Set([1, 2, 3]),
+        f: function () {
+          return "f";
+        },
+        g: Symbol("g"),
+        h: null,
+        i: undefined,
+        j: true,
+        k: [1, 2, { l: "m" }],
+        m: {
+          n: {
+            o: "p",
+          },
+        },
+      };
+
+      // Use assert.deepEqual to compare the cloned object with the original object
+      assert.deepEqual(deepClone(obj), obj);
+    });
+  });
+
   describe("expect(...).to[.deep].eq[ua]l[s](...)", () => {
     describe("with promises", () => {
       it("should work when actual param is a promise", async () => {
@@ -21,6 +52,139 @@ describe("chai-equal-ignore-undefined-props", () => {
           Promise.resolve({ b: "b", c: undefined }),
         );
       });
+    });
+
+    it("should work normally for all primitive types", () => {
+      expect(undefined).to.deep.equal(undefined);
+      expect(null).to.deep.equal(null);
+      expect(true).to.deep.equal(true);
+      expect(false).to.deep.equal(false);
+      expect(0).to.deep.equal(0);
+      expect(1).to.deep.equal(1);
+      expect("").to.deep.equal("");
+      expect("string").to.deep.equal("string");
+    });
+
+    it("should not work with mixed primitive types", () => {
+      expect(undefined).to.not.deep.equal(null);
+      expect(null).to.not.deep.equal(true);
+      expect(true).to.not.deep.equal(false);
+      expect(false).to.not.deep.equal(0);
+      expect(0).to.not.deep.equal(1);
+      expect(1).to.not.deep.equal("");
+      expect("").to.not.deep.equal("string");
+    });
+
+    it("should fail if used with not equal primitive types", () => {
+      expect(() => {
+        expect(undefined).to.deep.equal(null);
+      }).to.throw("expected undefined to deeply equal null");
+
+      expect(() => {
+        expect(null).to.deep.equal(true);
+      }).to.throw("expected null to deeply equal true");
+
+      expect(() => {
+        expect(true).to.deep.equal(false);
+      }).to.throw("expected true to deeply equal false");
+
+      expect(() => {
+        expect(false).to.deep.equal(0);
+      }).to.throw("expected false to deeply equal +0");
+
+      expect(() => {
+        expect(0).to.deep.equal(undefined);
+      }).to.throw("expected +0 to deeply equal undefined");
+
+      expect(() => {
+        expect(0).to.deep.equal(null);
+      }).to.throw("expected +0 to deeply equal null");
+
+      expect(() => {
+        expect(0).to.deep.equal("");
+      }).to.throw("expected +0 to deeply equal ''");
+
+      expect(() => {
+        expect("").to.deep.equal("string");
+      }).to.throw("expected '' to deeply equal 'string'");
+
+      expect(undefined).to.not.deep.equal(null);
+      expect(null).to.not.deep.equal(true);
+      expect(true).to.not.deep.equal(false);
+      expect(false).to.not.deep.equal(0);
+      expect(0).to.not.deep.equal(1);
+      expect(1).to.not.deep.equal("");
+      expect("").to.not.deep.equal("string");
+    });
+
+    it("should fail if not is used when the primitive types are the same", () => {
+      expect(() => {
+        expect(undefined).to.not.deep.equal(undefined);
+      }).to.throw("expected undefined to not deeply equal undefined");
+
+      expect(() => {
+        expect(null).to.not.deep.equal(null);
+      }).to.throw("expected null to not deeply equal null");
+
+      expect(() => {
+        expect(true).to.not.deep.equal(true);
+      }).to.throw("expected true to not deeply equal true");
+
+      expect(() => {
+        expect(false).to.not.deep.equal(false);
+      }).to.throw("expected false to not deeply equal false");
+
+      expect(() => {
+        expect(0).to.not.deep.equal(0);
+      }).to.throw("expected +0 to not deeply equal +0");
+
+      expect(() => {
+        expect(1).to.not.deep.equal(1);
+      }).to.throw("expected 1 to not deeply equal 1");
+
+      expect(() => {
+        expect("").to.not.deep.equal("");
+      }).to.throw("expected '' to not deeply equal ''");
+
+      expect(() => {
+        expect("string").to.not.deep.equal("string");
+      }).to.throw("expected 'string' to not deeply equal 'string'");
+    });
+
+    it("should work with deep equal map objects", () => {
+      const mapA = new Map([
+        ["b", "b"],
+        ["c", [1, 2]],
+      ]);
+      const mapB = new Map([
+        ["b", "b"],
+        ["c", [1, 2]],
+      ]);
+      expect(mapA).to.deep.equal(mapB);
+    });
+
+    it("should not ignore deep equal map objects having undefined properties", () => {
+      const mapA = new Map([
+        ["b", "b"],
+        ["withUndefinedKey", { aa: undefined, b: "b" }],
+      ]);
+      const mapB = new Map([
+        ["b", "b"],
+        ["withUndefinedKey", { cc: undefined, b: "b" }],
+      ]);
+
+      // The expected value has a different key with undefined value
+      expect(() => {
+        expect(mapA).to.deep.equal(mapB);
+      }).to.throw(
+        "expected Map{ 'b' => 'b', …(1) } to deeply equal Map{ 'b' => 'b', …(1) }",
+      );
+    });
+
+    it("should work with deep equal set objects", () => {
+      const setA = new Set(["b", [1, 2]]);
+      const setB = new Set(["b", [1, 2]]);
+      expect(setA).to.deep.equal(setB);
     });
 
     it("should work with not deep equal normally", () => {

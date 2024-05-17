@@ -1,18 +1,90 @@
-const fClone = require("fclone");
+function isPlainObject(obj) {
+  return Object.prototype.toString.call(obj) === "[object Object]";
+}
+
+function isPrimitive(value) {
+  return value !== Object(value);
+}
+
+function isFunction(value) {
+  return typeof value === "function";
+}
+
+const deepClone = (value, hash = new WeakMap()) => {
+  if (isPrimitive(value) || isFunction(value)) {
+    return value;
+  }
+
+  // Check for circular references
+  if (hash.has(value)) {
+    return "[Circular]";
+  }
+
+  // Handle Date
+  if (value instanceof Date) {
+    return new Date(value);
+  }
+
+  // Handle RegExp
+  if (value instanceof RegExp) {
+    return new RegExp(value);
+  }
+
+  // Handle Map
+  if (value instanceof Map) {
+    const result = new Map();
+    hash.set(value, result);
+    value.forEach((val, key) => {
+      result.set(deepClone(key, hash), deepClone(val, hash));
+    });
+    return result;
+  }
+
+  // Handle Set
+  if (value instanceof Set) {
+    const result = new Set();
+    hash.set(value, result);
+    value.forEach((val) => {
+      result.add(deepClone(val, hash));
+    });
+    return result;
+  }
+
+  // Handle Array and Objects
+  const result = Array.isArray(value)
+    ? []
+    : Object.create(Object.getPrototypeOf(value));
+  hash.set(value, result);
+
+  // Copy properties recursively
+  for (const key in value) {
+    if (value.hasOwnProperty(key)) {
+      result[key] = deepClone(value[key], hash);
+    }
+  }
+
+  // Handle Symbols in object keys
+  const symbols = Object.getOwnPropertySymbols(value);
+  for (const symbol of symbols) {
+    if (value.propertyIsEnumerable(symbol)) {
+      result[symbol] = deepClone(value[symbol], hash);
+    }
+  }
+
+  return result;
+};
 
 function chaiEqualIgnoreUndefinedProps(chai, utils) {
   const { Assertion } = chai;
 
   function cloneIgnoringUndefinedProperties(value) {
     function cloneIgnoringUndefinedPropertiesInner(object) {
-      if (typeof object !== "object" || object === null) {
-        return object;
+      if (Array.isArray(object)) {
+        return object.map(cloneIgnoringUndefinedPropertiesInner);
       }
 
-      if (Array.isArray(object)) {
-        return object.map((item) =>
-          cloneIgnoringUndefinedPropertiesInner(item, true),
-        );
+      if (!isPlainObject(object) || object === null) {
+        return object;
       }
 
       const clonedObject = {};
@@ -23,15 +95,14 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
         ) {
           clonedObject[key] = cloneIgnoringUndefinedPropertiesInner(
             object[key],
-            true,
           );
         }
       }
 
       return clonedObject;
     }
-
-    return cloneIgnoringUndefinedPropertiesInner(fClone(value));
+    const cloned = deepClone(value);
+    return cloneIgnoringUndefinedPropertiesInner(cloned);
   }
 
   function assertEqual(_super) {
@@ -40,7 +111,7 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
         return _super.apply(this, arguments);
       }
 
-      const actual = utils.flag(this, "object");
+      const actual = this._obj;
       const applyResults = (filteredActual, filteredExpected) => {
         this._obj = filteredActual;
         arguments[0] = filteredExpected;
@@ -74,4 +145,5 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
 }
 
 module.exports = chaiEqualIgnoreUndefinedProps;
+module.exports.deepClone = deepClone;
 module.exports.default = chaiEqualIgnoreUndefinedProps;

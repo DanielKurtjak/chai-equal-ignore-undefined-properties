@@ -44,9 +44,7 @@
     "prettier": "^3.2.5",
     "tsd": "^0.25.0"
   },
-  "dependencies": {
-    "fclone": "^1.0.11"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "chai": ">= 4.0.0 < 5"
   }
