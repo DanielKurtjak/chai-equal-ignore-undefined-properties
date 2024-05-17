@@ -8,26 +8,44 @@ use(chaiEqualIgnoreUndefinedProps);
 
 describe("chai-equal-ignore-undefined-props", () => {
   describe("expect(...).to[.deep].eq[ua]l[s](...)", () => {
-    it("should work with promises as actual", async () => {
-      await expect(Promise.resolve({ a: undefined, b: "b" })).to.deep.equals({
-        b: "b",
-        c: undefined,
+    describe("with promises", () => {
+      it("should work when actual param is a promise", async () => {
+        await expect(Promise.resolve({ a: undefined, b: "b" })).to.deep.equal({
+          b: "b",
+          c: undefined,
+        });
+      });
+
+      it("should work when expected param is a promise", async () => {
+        await expect({ a: undefined, b: "b" }).to.deep.equal(
+          Promise.resolve({ b: "b", c: undefined }),
+        );
       });
     });
 
-    it("should work with promises as expected", async () => {
-      await expect({ a: undefined, b: "b" }).to.deep.equals(
-        Promise.resolve({ b: "b", c: undefined }),
-      );
+    it("should work with not deep equal normally", () => {
+      const obj = { a: undefined, b: "b" };
+
+      // Different object reference
+      expect(obj).to.not.equal({ b: "b" });
+
+      // Same object reference
+      expect(obj).to.equal(obj);
+
+      // Different object reference
+      expect(obj).to.not.equal({ ...obj });
+
+      // Same object reference with deep equal
+      expect(obj).to.deep.equal(obj);
     });
 
     it("should ignore key(s) with undefined value from comparison for both expected value and actual value", () => {
-      expect({ a: undefined, b: "b" }).to.deep.equals({
+      expect({ a: undefined, b: "b" }).to.deep.equal({
         b: "b",
         c: undefined,
       });
 
-      expect({ a: undefined, aa: undefined, b: "b" }).to.deep.equals({
+      expect({ a: undefined, aa: undefined, b: "b" }).to.deep.equal({
         b: "b",
         c: undefined,
         cc: undefined,
@@ -35,27 +53,27 @@ describe("chai-equal-ignore-undefined-props", () => {
     });
 
     it("should ignore key(s) with undefined value from comparison for expected value ", () => {
-      expect({ a: undefined, b: "b" }).to.deep.equals({
+      expect({ a: undefined, b: "b" }).to.deep.equal({
         b: "b",
       });
 
-      expect({ a: undefined, c: undefined, b: "b" }).to.deep.equals({
+      expect({ a: undefined, c: undefined, b: "b" }).to.deep.equal({
         b: "b",
       });
     });
 
     it("should ignore key(s) with undefined value from comparison from actual value", () => {
-      expect({ b: "b" }).to.deep.equals({ b: "b", a: undefined });
+      expect({ b: "b" }).to.deep.equal({ b: "b", a: undefined });
 
-      expect({ b: "b" }).to.deep.equals({ b: "b", a: undefined, c: undefined });
+      expect({ b: "b" }).to.deep.equal({ b: "b", a: undefined, c: undefined });
     });
 
     it("should ignore key(s) with undefined value from comparison for nested objects", () => {
-      expect({ a: { b: undefined, c: "c" } }).to.deep.equals({
+      expect({ a: { b: undefined, c: "c" } }).to.deep.equal({
         a: { c: "c", d: undefined },
       });
 
-      expect({ a: { b: undefined, bb: undefined, c: "c" } }).to.deep.equals({
+      expect({ a: { b: undefined, bb: undefined, c: "c" } }).to.deep.equal({
         a: { c: "c", d: undefined, dd: undefined },
       });
     });
@@ -72,7 +90,7 @@ describe("chai-equal-ignore-undefined-props", () => {
 
     it("should throw an error if the actual value does not match the expected value", () => {
       expect(() => {
-        expect({ a: undefined, b: "b" }).to.deep.equals({
+        expect({ a: undefined, b: "b" }).to.deep.equal({
           b: "wrong value",
           c: undefined,
         });
@@ -84,7 +102,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       expect([
         [undefined, "a"],
         ["b", undefined],
-      ]).to.deep.equals([
+      ]).to.deep.equal([
         [undefined, "a"],
         ["b", undefined],
       ]);
@@ -92,38 +110,38 @@ describe("chai-equal-ignore-undefined-props", () => {
 
     it("should throw an error if the actual value is not an object or array", () => {
       expect(() => {
-        expect(undefined).to.deep.equals({ a: undefined });
+        expect(undefined).to.deep.equal({ a: undefined });
       }).to.throw("expected undefined to deeply equal {}");
 
       expect(() => {
-        expect(null).to.deep.equals({ a: undefined });
+        expect(null).to.deep.equal({ a: undefined });
       }).to.throw("expected null to deeply equal {}");
 
       expect(() => {
-        expect("string").to.deep.equals({ a: undefined });
+        expect("string").to.deep.equal({ a: undefined });
       }).to.throw("expected 'string' to deeply equal {}");
 
       expect(() => {
-        expect(123).to.deep.equals({ a: undefined });
+        expect(123).to.deep.equal({ a: undefined });
       }).to.throw("expected 123 to deeply equal {}");
 
       expect(() => {
-        expect(true).to.deep.equals({ a: undefined });
+        expect(true).to.deep.equal({ a: undefined });
       }).to.throw("expected true to deeply equal {}");
     });
 
     it("should ignore key(s) with undefined value from comparison for both expected value and actual value in mixed objects and arrays", () => {
-      expect([{ a: undefined, b: "b" }, ["c"]]).to.deep.equals([
+      expect([{ a: undefined, b: "b" }, ["c"]]).to.deep.equal([
         { b: "b" },
         ["c"],
       ]);
     });
 
     it("should ignore key(s) with undefined value from comparison for both expected value and actual value in mixed nested objects and arrays", () => {
-      expect({ a: [{ b: undefined, c: "c" }] }).to.deep.equals({
+      expect({ a: [{ b: undefined, c: "c" }] }).to.deep.equal({
         a: [{ c: "c" }],
       });
-      expect({ a: [{ b: undefined, c: "c" }] }).to.deep.equals({
+      expect({ a: [{ b: undefined, c: "c" }] }).to.deep.equal({
         a: [{ c: "c", d: undefined }],
       });
     });
@@ -135,7 +153,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       const expectedObject = { b: "b", c: undefined };
       expectedObject.c = expectedObject;
 
-      expect(actualObject).to.deep.equals(expectedObject);
+      expect(actualObject).to.deep.equal(expectedObject);
     });
 
     it("should handle circular dependencies with nested objects", () => {
@@ -145,7 +163,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       const expectedObject = { a: { c: "c", d: undefined } };
       expectedObject.a.d = expectedObject;
 
-      expect(actualObject).to.deep.equals(expectedObject);
+      expect(actualObject).to.deep.equal(expectedObject);
     });
 
     it("should handle circular dependencies with arrays", () => {
@@ -155,7 +173,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       const expectedArray = [undefined, "b"];
       expectedArray.push(expectedArray);
 
-      expect(actualArray).to.deep.equals(expectedArray);
+      expect(actualArray).to.deep.equal(expectedArray);
     });
 
     it("should handle circular dependencies with mixed objects and arrays", () => {
@@ -165,7 +183,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       const expectedMixed = [{ b: "b" }, ["c"]];
       expectedMixed.push(expectedMixed);
 
-      expect(actualMixed).to.deep.equals(expectedMixed);
+      expect(actualMixed).to.deep.equal(expectedMixed);
     });
 
     it("should handle multiple levels of circular dependencies", () => {
@@ -177,7 +195,7 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedObject.c = { d: expectedObject };
       expectedObject.c.e = { f: expectedObject.c };
 
-      expect(actualObject).to.deep.equals(expectedObject);
+      expect(actualObject).to.deep.equal(expectedObject);
     });
   });
 });

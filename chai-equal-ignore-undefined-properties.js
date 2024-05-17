@@ -1,22 +1,18 @@
-const clone = require("fclone");
+const fClone = require("fclone");
 
 function chaiEqualIgnoreUndefinedProps(chai, utils) {
   const { Assertion } = chai;
 
-  function cloneIgnoringUndefinedProperties(val, deepClone) {
-    const obj = clone(val);
-
-    function cloneIgnoringUndefinedPropertiesInner(object, deepClone) {
+  function cloneIgnoringUndefinedProperties(value) {
+    function cloneIgnoringUndefinedPropertiesInner(object) {
       if (typeof object !== "object" || object === null) {
         return object;
       }
 
       if (Array.isArray(object)) {
-        return deepClone
-          ? object.map((item) =>
-              cloneIgnoringUndefinedPropertiesInner(item, true),
-            )
-          : object;
+        return object.map((item) =>
+          cloneIgnoringUndefinedPropertiesInner(item, true),
+        );
       }
 
       const clonedObject = {};
@@ -25,51 +21,48 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
           Object.prototype.hasOwnProperty.call(object, key) &&
           object[key] !== undefined
         ) {
-          clonedObject[key] = deepClone
-            ? cloneIgnoringUndefinedPropertiesInner(object[key], true)
-            : object[key];
+          clonedObject[key] = cloneIgnoringUndefinedPropertiesInner(
+            object[key],
+            true,
+          );
         }
       }
 
       return clonedObject;
     }
 
-    return cloneIgnoringUndefinedPropertiesInner(obj, deepClone);
+    return cloneIgnoringUndefinedPropertiesInner(fClone(value));
   }
 
   function assertEqual(_super) {
     return function (expected) {
-      const deepClone = utils.flag(this, "deep");
+      if (!utils.flag(this, "deep")) {
+        return _super.apply(this, arguments);
+      }
+
       const actual = utils.flag(this, "object");
+      const applyResults = (filteredActual, filteredExpected) => {
+        this._obj = filteredActual;
+        arguments[0] = filteredExpected;
+        return _super.apply(this, arguments);
+      };
+
       if (expected instanceof Promise || actual instanceof Promise) {
         return Promise.all([
           Promise.resolve(actual),
           Promise.resolve(expected),
         ]).then(([resolvedActual, resolvedExpected]) => {
-          const filteredActual = cloneIgnoringUndefinedProperties(
-            resolvedActual,
-            deepClone,
+          return applyResults(
+            cloneIgnoringUndefinedProperties(resolvedActual),
+            cloneIgnoringUndefinedProperties(resolvedExpected),
           );
-          const filteredExpected = cloneIgnoringUndefinedProperties(
-            resolvedExpected,
-            deepClone,
-          );
-          this._obj = filteredActual;
-          arguments[0] = filteredExpected;
-
-          return _super.apply(this, arguments);
         });
       }
-      const filteredExpected = cloneIgnoringUndefinedProperties(
-        expected,
-        deepClone,
+
+      return applyResults(
+        cloneIgnoringUndefinedProperties(actual),
+        cloneIgnoringUndefinedProperties(expected),
       );
-
-      this._obj = cloneIgnoringUndefinedProperties(actual, deepClone);
-
-      arguments[0] = filteredExpected;
-
-      return _super.apply(this, arguments);
     };
   }
 
