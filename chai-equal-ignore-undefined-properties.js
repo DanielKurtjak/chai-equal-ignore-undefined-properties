@@ -10,14 +10,14 @@ function isFunction(value) {
   return typeof value === "function";
 }
 
-const deepClone = (value, hash = new WeakMap()) => {
+const deepClone = (value, hash = new WeakMap(), parents = []) => {
   if (isPrimitive(value) || isFunction(value)) {
     return value;
   }
 
   // Check for circular references
   if (hash.has(value)) {
-    return hash.get(value);
+    return parents.includes(value) ? "[Circular]" : hash.get(value);
   }
 
   // Handle Date
@@ -35,7 +35,10 @@ const deepClone = (value, hash = new WeakMap()) => {
     const result = new Map();
     hash.set(value, result);
     value.forEach((val, key) => {
-      result.set(deepClone(key, hash), deepClone(val, hash));
+      result.set(
+        deepClone(key, hash, [...parents, value]),
+        deepClone(val, hash, [...parents, value]),
+      );
     });
     return result;
   }
@@ -45,7 +48,7 @@ const deepClone = (value, hash = new WeakMap()) => {
     const result = new Set();
     hash.set(value, result);
     value.forEach((val) => {
-      result.add(deepClone(val, hash));
+      result.add(deepClone(val, hash, [...parents, value]));
     });
     return result;
   }
@@ -59,7 +62,7 @@ const deepClone = (value, hash = new WeakMap()) => {
   // Copy properties recursively
   for (const key in value) {
     if (value.hasOwnProperty(key)) {
-      result[key] = deepClone(value[key], hash);
+      result[key] = deepClone(value[key], hash, [...parents, value]);
     }
   }
 
@@ -67,7 +70,7 @@ const deepClone = (value, hash = new WeakMap()) => {
   const symbols = Object.getOwnPropertySymbols(value);
   for (const symbol of symbols) {
     if (value.propertyIsEnumerable(symbol)) {
-      result[symbol] = deepClone(value[symbol], hash);
+      result[symbol] = deepClone(value[symbol], hash, [...parents, value]);
     }
   }
 

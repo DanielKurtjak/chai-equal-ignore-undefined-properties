@@ -310,7 +310,17 @@ describe("chai-equal-ignore-undefined-props", () => {
       });
     });
 
-    it("should handle circular dependencies on a top level properties", () => {
+    it("should not replace with [Circular] if the circular reference is not detected", () => {
+      const ref = { r: "r" };
+      // There is some reference to the same object but it is not circular
+      const actualObject = { a: undefined, b: "b", ref, c: { ref } };
+      const expectedObject = { c: undefined, b: "b", ref, c: { ref } };
+
+      expect(actualObject).to.deep.equal(expectedObject);
+      expect(actualObject).to.deep.equal({ b: "b", ref, c: { ref } });
+    });
+
+    it("should handle circular references on a top level properties", () => {
       const actualObject = { a: undefined, b: "b" };
       actualObject.c = actualObject;
 
@@ -318,9 +328,10 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedObject.c = expectedObject;
 
       expect(actualObject).to.deep.equal(expectedObject);
+      expect(actualObject).to.deep.equal({ b: "b", c: "[Circular]" });
     });
 
-    it("should handle circular dependencies with nested objects", () => {
+    it("should handle circular references with nested objects", () => {
       const actualObject = { a: { b: undefined, c: "c" } };
       actualObject.a.d = actualObject;
 
@@ -328,9 +339,10 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedObject.a.d = expectedObject;
 
       expect(actualObject).to.deep.equal(expectedObject);
+      expect(actualObject).to.deep.equal({ a: { c: "c", d: "[Circular]" } });
     });
 
-    it("should handle circular dependencies with arrays", () => {
+    it("should handle circular references with arrays", () => {
       const actualArray = [undefined, "b"];
       actualArray.push(actualArray);
 
@@ -338,9 +350,10 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedArray.push(expectedArray);
 
       expect(actualArray).to.deep.equal(expectedArray);
+      expect(actualArray).to.deep.equal([undefined, "b", "[Circular]"]);
     });
 
-    it("should handle circular dependencies with mixed objects and arrays", () => {
+    it("should handle circular references with mixed objects and arrays", () => {
       const actualMixed = [{ a: undefined, b: "b" }, ["c"]];
       actualMixed.push(actualMixed);
 
@@ -348,9 +361,10 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedMixed.push(expectedMixed);
 
       expect(actualMixed).to.deep.equal(expectedMixed);
+      expect(actualMixed).to.deep.equal([{ b: "b" }, ["c"], "[Circular]"]);
     });
 
-    it("should handle multiple levels of circular dependencies", () => {
+    it("should handle multiple levels of circular references", () => {
       const actualObject = { one: undefined, b: "b" };
       actualObject.c = { d: actualObject };
       actualObject.c.e = { f: actualObject.c };
@@ -360,6 +374,15 @@ describe("chai-equal-ignore-undefined-props", () => {
       expectedObject.c.e = { f: expectedObject.c };
 
       expect(actualObject).to.deep.equal(expectedObject);
+      expect(actualObject).to.deep.equal({
+        b: "b",
+        c: {
+          d: "[Circular]",
+          e: {
+            f: "[Circular]",
+          },
+        },
+      });
     });
   });
 });
