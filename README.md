@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/chai-equal-ignore-undefined-properties.svg)](https://www.npmjs.com/package/chai-equal-ignore-undefined-properties)
 [![npm](https://img.shields.io/npm/dw/chai-equal-ignore-undefined-properties.svg)](https://www.npmjs.com/package/chai-equal-ignore-undefined-properties)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![CI Status](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yaml)
 
 Ignore keys with undefined value to compare from a deep equal operation with chai [expect](http://chaijs.com/api/bdd/).
