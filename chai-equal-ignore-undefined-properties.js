@@ -17,7 +17,7 @@ const deepClone = (value, hash = new WeakMap()) => {
 
   // Check for circular references
   if (hash.has(value)) {
-    return "[Circular]";
+    return hash.get(value);
   }
 
   // Handle Date
