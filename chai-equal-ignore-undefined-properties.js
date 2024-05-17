@@ -38,13 +38,36 @@ function chaiEqualIgnoreUndefinedProps(chai, utils) {
   }
 
   function assertEqual(_super) {
-    return function (val) {
+    return function (expected) {
       const deepClone = utils.flag(this, "deep");
-      const strippedVal = cloneIgnoringUndefinedProperties(val, deepClone);
+      const actual = utils.flag(this, "object");
+      if (expected instanceof Promise || actual instanceof Promise) {
+        return Promise.all([
+          Promise.resolve(actual),
+          Promise.resolve(expected),
+        ]).then(([resolvedActual, resolvedExpected]) => {
+          const filteredActual = cloneIgnoringUndefinedProperties(
+            resolvedActual,
+            deepClone,
+          );
+          const filteredExpected = cloneIgnoringUndefinedProperties(
+            resolvedExpected,
+            deepClone,
+          );
+          this._obj = filteredActual;
+          arguments[0] = filteredExpected;
 
-      this._obj = cloneIgnoringUndefinedProperties(this._obj, deepClone);
+          return _super.apply(this, arguments);
+        });
+      }
+      const filteredExpected = cloneIgnoringUndefinedProperties(
+        expected,
+        deepClone,
+      );
 
-      arguments[0] = strippedVal;
+      this._obj = cloneIgnoringUndefinedProperties(actual, deepClone);
+
+      arguments[0] = filteredExpected;
 
       return _super.apply(this, arguments);
     };

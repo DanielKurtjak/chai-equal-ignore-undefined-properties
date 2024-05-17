@@ -8,6 +8,19 @@ use(chaiEqualIgnoreUndefinedProps);
 
 describe("chai-equal-ignore-undefined-props", () => {
   describe("expect(...).to[.deep].eq[ua]l[s](...)", () => {
+    it("should work with promises as actual", async () => {
+      await expect(Promise.resolve({ a: undefined, b: "b" })).to.deep.equals({
+        b: "b",
+        c: undefined,
+      });
+    });
+
+    it("should work with promises as expected", async () => {
+      await expect({ a: undefined, b: "b" }).to.deep.equals(
+        Promise.resolve({ b: "b", c: undefined }),
+      );
+    });
+
     it("should ignore key(s) with undefined value from comparison for both expected value and actual value", () => {
       expect({ a: undefined, b: "b" }).to.deep.equals({
         b: "b",
