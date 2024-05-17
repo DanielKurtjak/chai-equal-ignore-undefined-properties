@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/chai-equal-ignore-undefined-properties.svg)](https://www.npmjs.com/package/chai-equal-ignore-undefined-properties)
 [![npm](https://img.shields.io/npm/dw/chai-equal-ignore-undefined-properties.svg)](https://www.npmjs.com/package/chai-equal-ignore-undefined-properties)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![CI Status](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yml)
+[![CI Status](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/DanielKurtjak/chai-equal-ignore-undefined-properties/actions/workflows/test.yaml)
 
 Ignore keys with undefined value to compare from a deep equal operation with chai [expect](http://chaijs.com/api/bdd/).
 
@@ -63,17 +63,17 @@ All these examples are for JavaScript.
 1. Ignore a top level property from an object
 
 ```js
-expect({ actualUndefinedProp: undefined, b: "b" }).to.equal({
-  b: "b",
-  expectedUndefinedProp: undefined,
+expect({ aa: undefined, bb: "b" }).to.equal({
+  bb: "b",
+  cc: undefined,
 });
 ```
 
 2. Ignore properties within array with undefined values
 
 ```js
-const expectedArray = [{ actualUndefinedProp: undefined, b: "b" }];
-const actualArray = [{ expectedUndefinedProp: undefined, b: "b" }];
+const expectedArray = [{ aa: undefined, bb: "b" }];
+const actualArray = [{ cc: undefined, bb: "b" }];
 expect(actualArray).to.deep.equal(expectedArray);
 ```
 
@@ -81,25 +81,22 @@ expect(actualArray).to.deep.equal(expectedArray);
 
 ```js
 expect({
-  topLevelProp: { actualUndefinedProp: undefined, b: "b" },
+  topLevelProp: { aa: undefined, bb: "b" },
 }).to.deep.equal({
-  topLevelProp: {
-    b: "b",
-    expectedUndefinedProp: undefined,
-  },
+  topLevelProp: { bb: "b", cc: undefined },
 });
 ```
 
 4. Works with circular dependencies
 
 ```js
-const actualObject = { a: undefined, b: "b" };
+const actualObject = { aa: undefined, bb: "b" };
 actualObject.c = actualObject;
 
-const expectedObject = { b: "b", c: undefined };
+const expectedObject = { bb: "b", cc: undefined };
 expectedObject.c = expectedObject;
 
-expect(actualObject).to.deep.equals(expectedObject);
+expect(actualObject).to.deep.equal(expectedObject);
 ```
 
 ## Contributing
